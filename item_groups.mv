@@ -5,26 +5,7 @@
 	<MvASSIGN NAME = "l.module:version"		VALUE = "1.000">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "9.00">
 	<MvASSIGN NAME = "l.module:description"	VALUE = "Group Products in the basket with a hidden input..and stuff.">
-	<MvASSIGN NAME = "l.module:features"	VALUE = "system, vis_system">
-</MvFUNCTION>
-
-<MvFUNCTION NAME = "Module_System_Tabs" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
-</MvFUNCTION>
-
-<MvFUNCTION NAME = "Module_System_Content" PARAMETERS = "module var, tab, load_fields" STANDARDOUTPUTLEVEL = "">
-	<MvFUNCTIONRETURN VALUE = 1>
-</MvFUNCTION>
-
-<MvFUNCTION NAME = "Module_System_Validate" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
-	<MvFUNCTIONRETURN VALUE = 1>
-</MvFUNCTION>
-
-<MvFUNCTION NAME = "Module_System_Update" PARAMETERS = "module var" STANDARDOUTPUTLEVEL = "">
-	<MvFUNCTIONRETURN VALUE = 1>
-</MvFUNCTION>
-
-<MvFUNCTION NAME = "Module_System_Head" PARAMETERS = "module var, tab" STANDARDOUTPUTLEVEL = "">
-	<MvFUNCTIONRETURN VALUE = 1>
+	<MvASSIGN NAME = "l.module:features"	VALUE = "system">
 </MvFUNCTION>
 
 <MvCOMMENT>
@@ -34,30 +15,33 @@
 </MvCOMMENT>
 
 
-<MvFUNCTION NAME = "SystemModule_Action" PARAMETERS = "module var, action" STANDARDOUTPUTLEVEL = "compresswhitespace">
+<MvFUNCTION NAME = "SystemModule_Action" PARAMETERS = "module var, action" STANDARDOUTPUTLEVEL = "">
 	<MvIF EXPR = "{ ( 'ADPR' CIN l.action ) AND ( NOT ISNULL g.TGPG_Code ) AND ( NOT ISNULL g.TGPG_Value ) }">	
-		<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( g.Product_Code, g.Quantity, g.Attributes, g.Product_Attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG_Updates, g.TGPG_New ) }">
+		<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( g.Product_Code, g.Quantity, g.Attributes, g.Product_Attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New, g.TGPG:Update_Bask ) }">
 	</MvIF>
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
 
-<MvFUNCTION NAME = "SystemModule_Screen" PARAMETERS = "module var, screen" STANDARDOUTPUTLEVEL = "compresswhitespace">
-	<MvIF EXPR = "{ g.TGPG_Updates }">
-		<MvASSIGN NAME = "l.success" VALUE = "{ Seperate_Products_Out( g.TGPG_Updates, g.TGPG_Code, g.TGPG_Value ) }">
+<MvFUNCTION NAME = "SystemModule_Screen" PARAMETERS = "module var, screen" STANDARDOUTPUTLEVEL = "">
+	<MvIF EXPR = "{ g.TGPG:Updates }">
+		<MvASSIGN NAME = "l.success" VALUE = "{ Seperate_Products_Out( g.TGPG:Updates, g.TGPG_Code, g.TGPG_Value ) }">
 	</MvIF>
-	<MvIF EXPR = "{ g.TGPG_New }">
-		<MvASSIGN NAME = "l.success" VALUE = "{ Update_New_Products( g.TGPG_New ) }">
+	<MvIF EXPR = "{ g.TGPG:New }">
+		<MvASSIGN NAME = "l.success" VALUE = "{ Update_New_Products( g.TGPG:New ) }">
+	</MvIF>
+	<MvIF EXPR = "{ g.TGPG:Updates OR g.TGPG:New}">
+		<MvASSIGN NAME = "l.success" VALUE = "{ [ g.Module_Feature_PGR_RT ].Runtime_Discount_Basket( g.Basket ) }">
 	</MvIF>
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
 
-<MvFUNCTION NAME = "SystemModule_UIException" PARAMETERS = "module var, exception" STANDARDOUTPUTLEVEL = "compresswhitespace">
+<MvFUNCTION NAME = "SystemModule_UIException" PARAMETERS = "module var, exception" STANDARDOUTPUTLEVEL = "">
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
-<MvFUNCTION NAME = "Seperate_Products_Out" PARAMETERS = "basketupdates var, custom_attribute, custom_value" STANDARDOUTPUTLEVEL = "html,text">
+<MvFUNCTION NAME = "Seperate_Products_Out" PARAMETERS = "basketupdates var, custom_attribute, custom_value" STANDARDOUTPUTLEVEL = "">
 	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.basketupdates">
 		<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].BasketItem_Load_Line( l.item:basketitem:basket_id, l.item:basketitem:line_id, l.updated_line ) }">
 			<MvFOREACHCONTINUE />
@@ -112,7 +96,7 @@
 	</MvFOREACH>
 </MvFUNCTION>
 
-<MvFUNCTION NAME = "Determine_Same" PARAMETERS = "product_code, quantity, attributes var, product_attributes var, custom_attribute, custom_value, updates var, new_items var" STANDARDOUTPUTLEVEL = "">
+<MvFUNCTION NAME = "Determine_Same" PARAMETERS = "product_code, quantity, attributes var, product_attributes var, custom_attribute, custom_value, updates var, new_items var, add_onto var" STANDARDOUTPUTLEVEL = "">
 
 	<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].Runtime_Product_Load_Code( l.product_code, l.product ) }">
 		<MvFUNCTIONRETURN VALUE = 0>
@@ -155,11 +139,6 @@
 		</MvFOREACH>
 
 		<MvIF EXPR = "{ NOT l.item_options_match }">
-			<MvFOREACHCONTINUE>
-		</MvIF>
-
-		<MvIF EXPR = "{ miva_array_search( l.item_options, 0, l.io,	'( l.io:attr_code EQ l.custom_attribute ) AND ( l.io:data EQ l.custom_value)' ) }">
-			<MvASSIGN NAME = "l.found_match" VALUE = "1" >
 			<MvFOREACHCONTINUE>
 		</MvIF>
 
