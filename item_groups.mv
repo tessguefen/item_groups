@@ -17,7 +17,8 @@
 
 <MvFUNCTION NAME = "SystemModule_Action" PARAMETERS = "module var, action" STANDARDOUTPUTLEVEL = "">
 	<MvIF EXPR = "{ ( 'ADPR' CIN l.action ) AND ( NOT ISNULL g.TGPG_Code ) AND ( NOT ISNULL g.TGPG_Value ) }">	
-		<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( g.Product_Code, g.Quantity, g.Attributes, g.Product_Attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New, g.TGPG:Update_Bask ) }">
+		<MvASSIGN NAME = "g.TGPG_Code" VALUE = "TGPG_Code" />
+		<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( g.Product_Code, g.Quantity, g.Attributes, g.Product_Attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New ) }">
 	</MvIF>
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
@@ -30,8 +31,12 @@
 	<MvIF EXPR = "{ g.TGPG:New }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ Update_New_Products( g.TGPG:New ) }">
 	</MvIF>
-	<MvIF EXPR = "{ g.TGPG:Updates OR g.TGPG:New}">
+	<MvIF EXPR = "{ g.TGPG:Updates OR g.TGPG:New }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ [ g.Module_Feature_PGR_RT ].Runtime_Discount_Basket( g.Basket ) }">
+		<MvCOMMENT>
+			Uncomment when complete. This is for debugging.
+			<MvASSIGN NAME = "g.TGPG" VALUE = "">
+		</MvCOMMENT>
 	</MvIF>
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
@@ -41,7 +46,87 @@
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
+
+<MvFUNCTION NAME = "Determine_Same" PARAMETERS = "product_code, quantity, attributes var, product_attributes var, custom_attribute, custom_value, updates var, new_items var" STANDARDOUTPUTLEVEL = "">
+
+	<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].Runtime_Product_Load_Code( l.product_code, l.product ) }">
+		<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+
+	<MvASSIGN NAME = "l.attribute_count"	VALUE = "{ miva_array_collapse( l.product_attributes ) }">
+
+	<MvIF EXPR = "{ NOT [ g.Module_Library_Utilities ].Validate_Attributes_DetermineVariant( l.product, l.attributes NE 0, l.product_attributes, l.attribute_count, l.basketoptions, l.basketoption_count, l.variant_id ) }">
+		<MvFUNCTIONRETURN VALUE = 0>
+	</MvIF>
+
+	<MvASSIGN NAME = "l.found_match" VALUE = "0" >
+
+	<MvFOREACH ITERATOR = "l.basketitem" ARRAY = "l.basketitems" COUNT = "{ [ g.Module_Library_DB ].BasketItemList_Load_Basket_Product( g.Basket:basket_id, l.product:id, l.basketitems ) }">
+		<MvIF EXPR = "{ l.basketitem:wish_id						OR
+						l.basketitem:upsold							OR
+						( l.basketitem:variant_id NE l.variant_id )	OR
+						( l.basketitem:subterm_id NE l.subterm_id ) }">
+			<MvFOREACHCONTINUE>
+		</MvIF>
+
+		<MvASSIGN NAME = "l.item_option_count"		VALUE = "{ [ g.Module_Library_DB ].BasketOptionList_Load_Line( l.basketitem:line_id, l.item_options ) }">
+
+		<MvIF EXPR = "{ l.item_option_count NE l.basketoption_count }">
+			<MvFOREACHCONTINUE>
+		</MvIF>
+
+		
+		<MvASSIGN NAME = "l.item_options_match"			VALUE = 1>
+
+		<MvFOREACH ITERATOR = "l.item_option" ARRAY = "l.item_options" COUNT = "{ l.item_option_count }">
+			<MvIF EXPR = "{ NOT miva_array_search( l.basketoptions, 0, l.basketoption, '( l.basketoption:attr_id EQ l.item_option:attr_id )			AND
+																						( l.basketoption:attmpat_id EQ l.item_option:attmpat_id )	AND
+																						( l.basketoption:option_id EQ l.item_option:option_id )		AND
+																						( l.basketoption:data EQ l.item_option:data )				AND
+																						( l.basketoption:data_long EQ l.item_option:data_long )') }">
+				<MvASSIGN NAME = "l.item_options_match"	VALUE = 0>
+				<MvFOREACHSTOP>
+			</MvIF>
+		</MvFOREACH>
+
+		<MvIF EXPR = "{ NOT l.item_options_match }">
+			<MvFOREACHCONTINUE>
+		</MvIF>
+
+		<MvCOMMENT>
+		|
+		| Found a matching item
+		|
+		</MvCOMMENT>
+
+		<MvASSIGN NAME = "l.temp:basketitem" VALUE = "{ l.basketitem }">
+		<MvASSIGN NAME = "l.temp:basketitem:options" VALUE = "{ l.basketoptions }">
+		<MvASSIGN NAME = "l.temp:new_quantity" VALUE = "{ l.quantity }">
+
+		<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.updates, l.temp, -1 ) }">
+		<MvASSIGN NAME = "l.found_match" VALUE = "1" >
+	</MvFOREACH>
+
+	<MvIF EXPR = "{ l.found_match EQ 0 }">
+		<MvASSIGN NAME = "l.new_temp:product_code" VALUE = "{ l.product_code }">
+		<MvASSIGN NAME = "l.new_temp:quantity" VALUE = "{ l.quantity }">
+		<MvASSIGN NAME = "l.new_temp:options" VALUE = "{ l.basketoptions }">
+		<MvASSIGN NAME = "l.new_temp:option_count" VALUE = "{ l.basketoption_count }">
+		<MvASSIGN NAME = "l.new_temp:custom_attribute" VALUE = "{ l.custom_attribute }">
+		<MvASSIGN NAME = "l.new_temp:custom_value" VALUE = "{ l.custom_value }">
+		<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.new_items, l.new_temp, -1 ) }">
+	</MvIF>
+
+</MvFUNCTION>
+
 <MvFUNCTION NAME = "Seperate_Products_Out" PARAMETERS = "basketupdates var, custom_attribute, custom_value" STANDARDOUTPUTLEVEL = "">
+
+	<MvCOMMENT>
+	|
+	|	This will Seperate Out an array of products to it's own line.
+	|
+	</MvCOMMENT>
+
 	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.basketupdates">
 		<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].BasketItem_Load_Line( l.item:basketitem:basket_id, l.item:basketitem:line_id, l.updated_line ) }">
 			<MvFOREACHCONTINUE />
@@ -94,87 +179,24 @@
 			<MvASSIGN NAME = "l.custom_attr:price" VALUE = "0">
 			<MvASSIGN NAME = "l.custom_attr:weight" VALUE = "0">
 			<MvASSIGN NAME = "l.custom_attr:data" VALUE = "{ l.custom_value }">
+
 			<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].BasketOption_Insert( l.custom_attr ) }">
 				<MvFOREACHCONTINUE />
 			</MvIF>
+
 		</MvIF>
 	</MvFOREACH>
 </MvFUNCTION>
 
-<MvFUNCTION NAME = "Determine_Same" PARAMETERS = "product_code, quantity, attributes var, product_attributes var, custom_attribute, custom_value, updates var, new_items var, add_onto var" STANDARDOUTPUTLEVEL = "html, text">
-
-	<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].Runtime_Product_Load_Code( l.product_code, l.product ) }">
-		<MvFUNCTIONRETURN VALUE = 0>
-	</MvIF>
-
-	<MvASSIGN NAME = "l.attribute_count"	VALUE = "{ miva_array_collapse( l.product_attributes ) }">
-
-	<MvIF EXPR = "{ NOT [ g.Module_Library_Utilities ].Validate_Attributes_DetermineVariant( l.product, l.attributes NE 0, l.product_attributes, l.attribute_count, l.basketoptions, l.basketoption_count, l.variant_id ) }">
-		<MvFUNCTIONRETURN VALUE = 0>
-	</MvIF>
-
-	<MvASSIGN NAME = "l.found_match" VALUE = "0" >
-
-	<MvASSIGN NAME = "l.original_basketoption_count" VALUE = "{ l.basketoption_count }">
-	<MvASSIGN NAME = "l.original_basketoptions" VALUE = "{ l.basketoptions }">
-
-	<MvFOREACH ITERATOR = "l.basketitem" ARRAY = "l.basketitems" COUNT = "{ [ g.Module_Library_DB ].BasketItemList_Load_Basket_Product( g.Basket:basket_id, l.product:id, l.basketitems ) }">
-		<MvIF EXPR = "{ l.basketitem:wish_id						OR
-						l.basketitem:upsold							OR
-						( l.basketitem:variant_id NE l.variant_id )	OR
-						( l.basketitem:subterm_id NE l.subterm_id ) }">
-			<MvFOREACHCONTINUE>
-		</MvIF>
-
-		<MvASSIGN NAME = "l.item_option_count"		VALUE = "{ [ g.Module_Library_DB ].BasketOptionList_Load_Line( l.basketitem:line_id, l.item_options ) }">
-
-		<MvIF EXPR = "{ l.item_option_count NE l.basketoption_count }">
-			<MvFOREACHCONTINUE>
-		</MvIF>
-
-		
-		<MvASSIGN NAME = "l.item_options_match"			VALUE = 1>
-
-		<MvFOREACH ITERATOR = "l.item_option" ARRAY = "l.item_options" COUNT = "{ l.item_option_count }">
-			<MvIF EXPR = "{ NOT miva_array_search( l.basketoptions, 0, l.basketoption, '( l.basketoption:attr_id EQ l.item_option:attr_id )			AND
-																						( l.basketoption:attmpat_id EQ l.item_option:attmpat_id )	AND
-																						( l.basketoption:option_id EQ l.item_option:option_id )		AND
-																						( l.basketoption:data EQ l.item_option:data )				AND
-																						( l.basketoption:data_long EQ l.item_option:data_long )') }">
-				<MvASSIGN NAME = "l.item_options_match"	VALUE = 0>
-				<MvFOREACHSTOP>
-			</MvIF>
-		</MvFOREACH>
-
-		<MvIF EXPR = "{ NOT l.item_options_match }">
-			<MvFOREACHCONTINUE>
-		</MvIF>
-
-		<MvCOMMENT>
-		|
-		| Found a matching item
-		|
-		</MvCOMMENT>
-
-		<MvASSIGN NAME = "l.temp:basketitem" VALUE = "{ l.basketitem }">
-		<MvASSIGN NAME = "l.temp:basketitem:options" VALUE = "{ l.basketoptions }">
-		<MvASSIGN NAME = "l.temp:new_quantity" VALUE = "{ l.quantity }">
-
-		<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.updates, l.temp, -1 ) }">
-		<MvASSIGN NAME = "l.found_match" VALUE = "1" >
-	</MvFOREACH>
-
-	<MvIF EXPR = "{ l.found_match EQ 0 }">
-		<MvASSIGN NAME = "l.new_temp:product_code" VALUE = "{ l.product_code }">
-		<MvASSIGN NAME = "l.new_temp:quantity" VALUE = "{ l.quantity }">
-		<MvASSIGN NAME = "l.new_temp:custom_attribute" VALUE = "{ l.custom_attribute }">
-		<MvASSIGN NAME = "l.new_temp:custom_value" VALUE = "{ l.custom_value }">
-		<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.new_items, l.new_temp, -1 ) }">
-	</MvIF>
-
-</MvFUNCTION>
 
 <MvFUNCTION NAME = "Update_New_Products" PARAMETERS = "new_products var" STANDARDOUTPUTLEVEL = "">
+	<MvCOMMENT>
+	|
+	|	This will Update the last added Item in the cart, and insert.
+	|	This needs to be revisited possibly...
+	|
+	</MvCOMMENT>
+
 	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.new_products">
 		<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].Runtime_Product_Load_Code( l.item:product_code, l.item:product ) }">
 			<MvFUNCTIONRETURN VALUE = 0>
@@ -182,9 +204,34 @@
 		<MvASSIGN NAME = "l.update_me" VALUE = "">
 
 		<MvFOREACH ITERATOR = "l.basketitem" ARRAY = "l.basketitems" COUNT = "{ [ g.Module_Library_DB ].BasketItemList_Load_Basket_Product( g.Basket:basket_id, l.item:product:id, l.basketitems ) }">
+			<MvASSIGN NAME = "l.found_match" VALUE = "0" >
+
+			<MvASSIGN NAME = "l.item_option_count"		VALUE = "{ [ g.Module_Library_DB ].BasketOptionList_Load_Line( l.basketitem:line_id, l.item_options ) }">
+
+			<MvIF EXPR = "{ l.item_option_count NE l.item:option_count }">
+				<MvFOREACHCONTINUE>
+			</MvIF>
+
+			<MvASSIGN NAME = "l.item_options_match"			VALUE = 1>
+
+			<MvFOREACH ITERATOR = "l.item_option" ARRAY = "l.item_options" COUNT = "{ l.item_option_count }">
+				<MvIF EXPR = "{ NOT miva_array_search( l.item:options, 0, l.basketoption, '( l.basketoption:attr_id EQ l.item_option:attr_id )			AND
+																							( l.basketoption:attmpat_id EQ l.item_option:attmpat_id )	AND
+																							( l.basketoption:option_id EQ l.item_option:option_id )		AND
+																							( l.basketoption:data EQ l.item_option:data )				AND
+																							( l.basketoption:data_long EQ l.item_option:data_long )') }">
+					<MvASSIGN NAME = "l.item_options_match"	VALUE = 0>
+					<MvFOREACHSTOP>
+				</MvIF>
+			</MvFOREACH>
+
+			<MvIF EXPR = "{ NOT l.item_options_match }">
+				<MvFOREACHCONTINUE>
+			</MvIF>
 			<MvIF EXPR = "{ l.basketitem:quantity EQ l.item:quantity }">
 				<MvASSIGN NAME = "l.update_me" VALUE = "{ l.basketitem }">
 			</MvIF>
+
 		</MvFOREACH>
 
 		<MvIF EXPR = "{ l.update_me:line_id GT 0 }">
