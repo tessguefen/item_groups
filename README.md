@@ -5,7 +5,15 @@ Items Groups
   <input type="hidden" name="TGPG_Code" value="Hey_World_Wuddup" />
   <input type="hidden" name="TGPG_Value" value="ayyyyyyyyyyy!" />
 ```
+IF
 
+  -> update/ remove/ etc. is to be supported................. how do we determine the code to associate all groups?
+  
+  -> store in table (meh) or include a hidden input with the code?
+  
+  -> ?@?@#>$3k4jrsldf
+  
+  
 Include TGPG_Code (attribute code) and TGPG_Value (attribute value) in your action when you add a product to cart and it will add it as an attribute.
 
 look into issues/ notes to self:
