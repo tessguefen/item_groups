@@ -28,4 +28,8 @@ If you want to tie the groups together so they can be updated and removed togeth
 ```
 
 **Grouping the items in an array**
-- In progress
+This will have it's own item later:
+```xml
+<mvt:do file="g.Module_Root $ '/modules/system/item_groups.mvc'" name="l.success" value="Group_Items( l.settings:basket:groups, 'My_Custom_Attribute_Code', l.settings:regular_items, l.settings:grouped_items )" />
+```
+![Example Image](http://puu.sh/xN6Og/3ca28aa735.png)
