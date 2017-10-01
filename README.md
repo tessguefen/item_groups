@@ -12,7 +12,7 @@ If you want to group items together, you need to pass 2 fields through the form.
 
 ```html
 <input type="hidden" name="TGPG_Code" value="My_Custom_Attribute_Code" />
-<input type="hidden" name="TGPG_Value" value="My_Custom_Grouping_Code" />
+<input type="hidden" name="TGPG_Value" value="My Custom Value.. or whatever" />
 ```
 
 
