@@ -1,26 +1,25 @@
 # item_groups
 Items Groups
 
+If you want to group items together, you need to pass 2 fields through the form.
+`TGPG_Code`: The custom Attribute code that will be used. There is no validation on the code.
+`TGPG_Value`: The value of the attribute (will be stored in `:data`)
+
+**ADPR, ADPM:**
+
 ```html
-  <input type="hidden" name="TGPG_Code" value="Hey_World_Wuddup" />
-  <input type="hidden" name="TGPG_Value" value="ayyyyyyyyyyy!" />
+<input type="hidden" name="TGPG_Code" value="My_Custom_Attribute_Code" />
+<input type="hidden" name="TGPG_Value" value="My_Custom_Grouping_Code" />
 ```
-IF
 
-  -> update/ remove/ etc. is to be supported................. how do we determine the code to associate all groups?
-  
-  -> store in table (meh) or include a hidden input with the code?
-  
-  -> ?@?@#>$3k4jrsldf
-  
-  
-Include TGPG_Code (attribute code) and TGPG_Value (attribute value) in your action when you add a product to cart and it will add it as an attribute.
+If you want to tie the groups together so they can be updated and removed together, you need to include 1 field to the form.
+`TGPG_Update`: The value of this **must** be the custom attribute code that was used earlier. It will find all basket items with the same `attr_code` and `data` and update/ remove them together.
 
-look into issues/ notes to self:
-- [x] ~~You can't add the same product to cart again (i.e. i just added a regular version, AND a version w. attributes, attributes goes to 2nd line)~~
-- [ ] add to work with adpm (quick/ easy)
-- [ ] Clean up all code and re-evaluate code.
-- [ ] if other products have the same attribute -- update them as necessary (i.e. they all update at the same time)
-  - [ ] should this be an option or something?? if so, where!?
-  - [ ] remove them too?!
-  - [ ] check for inventory stuff so if 1 can't be updated, just return -1 for the action...?!
+**QTYG, RGRP:**
+
+```html
+<input type="hidden" name="TGPG_Update" value="My_Custom_Attribute_Code" />
+```
+
+**Grouping the items in an array**
+- In progress
