@@ -17,7 +17,9 @@ If you want to group items together, you need to pass 2 fields through the form.
 
 
 If you want to tie the groups together so they can be updated and removed together, you need to include 1 field to the form.
+
 `TGPG_Update`: The value of this **must** be the custom attribute code that was used earlier. It will find all basket items with the same `attr_code` and `data` and update/ remove them together.
+
 
 **QTYG, RGRP:**
 
