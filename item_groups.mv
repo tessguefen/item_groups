@@ -16,9 +16,39 @@
 
 
 <MvFUNCTION NAME = "SystemModule_Action" PARAMETERS = "module var, action" STANDARDOUTPUTLEVEL = "">
-	<MvIF EXPR = "{ ( 'ADPR' CIN l.action ) AND ( NOT ISNULL g.TGPG_Code ) AND ( NOT ISNULL g.TGPG_Value ) }">	
-		<MvASSIGN NAME = "g.TGPG_Code" VALUE = "TGPG_Code" />
-		<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( g.Product_Code, g.Quantity, g.Attributes, g.Product_Attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New ) }">
+	<MvCOMMENT>
+	|
+	|	Check for `g.TGPG_Code` & `g.TGPG_Value`
+	|		Check for `ADPR` & `ADPM`
+	|
+	</MvCOMMENT>
+	<MvIF EXPR = "{ ( NOT ISNULL g.TGPG_Code ) AND ( NOT ISNULL g.TGPG_Value ) }">	
+		<MvASSIGN NAME = "g.TGPG" VALUE = "">
+
+		<MvIF EXPR = "{ 'ADPR' CIN l.action }">
+			<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( g.Product_Code, g.Quantity, g.Attributes, g.Product_Attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New ) }">
+		</MvIF>
+
+		<MvIF EXPR = "{ ( 'ADPM' CIN l.action ) AND g.Products }">
+			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_collapse( g.Products ) }">
+			<MvFOREACH ITERATOR = "l.product" ARRAY = "g.Products">
+				<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( l.product:code, l.product:quantity, g.Attributes, l.product:attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New ) }">
+			</MvFOREACH>
+		</MvIF>
+	</MvIF>
+	<MvCOMMENT>
+	|
+	| Check for `g.TGPG_Update`
+	|	Check for `QTYG` & `RGRP`
+	|
+	</MvCOMMENT>
+	<MvIF EXPR = "{ ( NOT ISNULL g.TGPG_Update ) }">
+		<MvIF EXPR = "{ 'QTYG' CIN l.action }">
+			<MvASSIGN NAME = "l.success" VALUE = "{ Find_Update_Grouped_Items( g.Basket_Group, g.TGPG_Update, g.TGPG:Quantity_Updates ) }">
+		</MvIF>
+		<MvIF EXPR = "{ 'RGRP' CIN l.action }">
+			<MvASSIGN NAME = "l.success" VALUE = "{ Find_Update_Grouped_Items( g.Basket_Group, g.TGPG_Update, g.TGPG:Remove_Updates ) }">
+		</MvIF>
 	</MvIF>
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
@@ -28,16 +58,27 @@
 	<MvIF EXPR = "{ g.TGPG:Updates }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ Seperate_Products_Out( g.TGPG:Updates, g.TGPG_Code, g.TGPG_Value ) }">
 	</MvIF>
+
 	<MvIF EXPR = "{ g.TGPG:New }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ Update_New_Products( g.TGPG:New ) }">
 	</MvIF>
+
 	<MvIF EXPR = "{ g.TGPG:Updates OR g.TGPG:New }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ [ g.Module_Feature_PGR_RT ].Runtime_Discount_Basket( g.Basket ) }">
-		<MvCOMMENT>
-			Uncomment when complete. This is for debugging.
-			<MvASSIGN NAME = "g.TGPG" VALUE = "">
-		</MvCOMMENT>
 	</MvIF>
+
+	<MvIF EXPR = "{ g.TGPG:Quantity_Updates }">
+		<MvASSIGN NAME = "l.success" VALUE = "{ Update_Grouped_Items( g.TGPG:Quantity_Updates, g.Quantity ) }">
+	</MvIF>
+
+	<MvIF EXPR = "{ g.TGPG:Remove_Updates }">
+		<MvASSIGN NAME = "l.success" VALUE = "{ Remove_Grouped_Items( g.TGPG:Remove_Updates ) }">
+	</MvIF>
+
+	<MvCOMMENT>
+		Uncomment when complete. This is for debugging.
+		<MvASSIGN NAME = "g.TGPG" VALUE = "">
+	</MvCOMMENT>
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
@@ -254,4 +295,61 @@
 		</MvIF>
 
 	</MvFOREACH>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Find_Update_Grouped_Items" PARAMETERS = "basket_group, custom_code, quantity_updates var" STANDARDOUTPUTLEVEL = "">
+	<MvIF EXPR = "{ NOT [ g.Module_Library_DB ].BasketItem_Load_Line( g.Basket:basket_id, l.basket_group, l.updated_line ) }">
+		<MvFUNCTIONRETURN VALUE = "0">
+	</MvIF>
+
+	<MvASSIGN NAME = "l.item_option_count" VALUE = "{ [ g.Module_Library_DB ].BasketOptionList_Load_Line( l.updated_line:line_id, l.updated_line:options ) }">
+
+	<MvIF EXPR = "{ l.item_option_count EQ 0 }">
+		<MvFUNCTIONRETURN VALUE = "0">
+	</MvIF>
+
+	<MvIF EXPR = "{ miva_array_search( l.updated_line:options, 0, l.option, 'l.option:attr_code EQ l.custom_code' ) }">
+		<MvASSIGN NAME = "l.custom_value" VALUE = "{ l.option:data }">
+	</MvIF>
+
+	<MvIF EXPR = "{ ISNULL l.custom_value  }">
+		<MvFUNCTIONRETURN VALUE = "0">
+	</MvIF>
+
+	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.basketitems" COUNT = "{ [ g.Module_Library_DB ].BasketItemList_Load_Basket( g.Basket:basket_id, l.basketitems ) }">
+
+		<MvIF EXPR = "{ l.item:line_id EQ l.updated_line:line_id }">
+			<MvFOREACHCONTINUE />
+		</MvIF>
+
+		<MvASSIGN NAME = "l.item:option_count" VALUE = "{ [ g.Module_Library_DB ].BasketOptionList_Load_Line( l.item:line_id, l.item:options ) }">
+
+		<MvIF EXPR = "{ l.item:option_count EQ 0 }">
+			<MvFOREACHCONTINUE />
+		</MvIF>
+
+		<MvIF EXPR = "{ NOT miva_array_search( l.item:options, 0, l.item_option, '( l.item_option:attr_code EQ l.custom_code ) AND ( l.item_option:data EQ l.custom_value )' ) }">
+			<MvFOREACHCONTINUE />
+		</MvIF>
+
+		<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert( l.quantity_updates, l.item:group_id, -1 ) }">
+	</MvFOREACH>
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Update_Grouped_Items" PARAMETERS = "updates var, quantity">
+	<MvASSIGN NAME = "l.previous_group" VALUE = "{ g.Basket_Group }">
+	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.updates">
+		<MvASSIGN NAME = "g.Basket_Group" VALUE = "{ l.item }">
+		<MvDO FILE = "{ g.Module_Merchant }" NAME = "l.success" VALUE = "{ Action_UpdateGroupQuantity() }">
+	</MvFOREACH>
+	<MvASSIGN NAME = "g.Basket_Group" VALUE = "{ l.previous_group }">
+</MvFUNCTION>
+
+<MvFUNCTION NAME = "Remove_Grouped_Items" PARAMETERS = "updates var">
+	<MvASSIGN NAME = "l.previous_group" VALUE = "{ g.Basket_Group }">
+	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.updates">
+		<MvASSIGN NAME = "g.Basket_Group" VALUE = "{ l.item }">
+		<MvDO FILE = "{ g.Module_Merchant }" NAME = "l.success" VALUE = "{ Action_RemoveGroupFromBasket() }">
+	</MvFOREACH>
+	<MvASSIGN NAME = "g.Basket_Group" VALUE = "{ l.previous_group }">
 </MvFUNCTION>
