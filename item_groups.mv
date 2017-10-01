@@ -353,3 +353,41 @@
 	</MvFOREACH>
 	<MvASSIGN NAME = "g.Basket_Group" VALUE = "{ l.previous_group }">
 </MvFUNCTION>
+
+<MvFUNCTION NAME = "Group_Items" PARAMETERS = "items var, custom_attribute, regular_items var, grouped_items var" STANDARDOUTPUTLEVEL = "">
+	<MvIF EXPR = "{ ISNULL l.custom_attribute }">
+		<MvFUNCTIONRETURN VALUE = 0 />
+	</MvIF>
+
+	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.items">
+		<MvIF EXPR = "{ l.item:option_count EQ 0 }">
+			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.regular_items, l.item, -1 ) }">
+			<MvFOREACHCONTINUE />
+		</MvIF>
+
+		<MvIF EXPR = "{ miva_array_search( l.item:options, 0, l.option, 'l.option:attr_code EQ l.custom_attribute' ) }">
+			<MvIF EXPR = "{ miva_array_search( l.grouped_items, 0, l.group, '( l.group:custom_code EQ l.option:attr_code ) AND ( l.group:custom_data EQ l.option:data )' ) }">
+				<MvASSIGN NAME = "l.group:base_price"			VALUE = "{ l.group:base_price + l.item:base_price }">
+				<MvASSIGN NAME = "l.group:price"				VALUE = "{ l.group:price + l.item:price }">
+				<MvASSIGN NAME = "l.group:subtotal"				VALUE = "{ l.group:subtotal + l.item:subtotal }">
+				<MvASSIGN NAME = "l.group:subtotal_base_price"	VALUE = "{ l.group:subtotal_base_price + l.item:subtotal_base_price }">
+				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.group:items, l.item, -1 ) }">
+			<MvELSE>
+				<MvASSIGN NAME = "l.temp"						VALUE = "">
+				<MvASSIGN NAME = "l.temp:custom_code"			VALUE = "{ l.option:attr_code }">
+				<MvASSIGN NAME = "l.temp:custom_data"			VALUE = "{ l.option:data }">
+				<MvASSIGN NAME = "l.temp:base_price"			VALUE = "{ l.item:base_price }">
+				<MvASSIGN NAME = "l.temp:price"					VALUE = "{ l.item:price }">
+				<MvASSIGN NAME = "l.temp:subtotal"				VALUE = "{ l.item:subtotal }">
+				<MvASSIGN NAME = "l.temp:subtotal_base_price"	VALUE = "{ l.item:subtotal_base_price }">
+				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.temp:items, l.item, -1 ) }">
+				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.grouped_items, l.temp, -1 )}">
+			</MvIF>
+		<MvELSE>
+			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.regular_items, l.item, -1 ) }">
+			<MvFOREACHCONTINUE />
+		</MvIF>
+
+	</MvFOREACH>
+
+</MvFUNCTION>
