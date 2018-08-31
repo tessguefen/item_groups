@@ -32,7 +32,7 @@
 		<MvIF EXPR = "{ ( 'ADPM' CIN l.action ) AND g.Products }">
 			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_collapse( g.Products ) }">
 			<MvFOREACH ITERATOR = "l.product" ARRAY = "g.Products">
-				<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( l.product:code, l.product:quantity, g.Attributes, l.product:attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New ) }">
+				<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( l.product:code, l.product:quantity, 0, l.product:attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New ) }">
 			</MvFOREACH>
 		</MvIF>
 	</MvIF>
@@ -75,10 +75,10 @@
 		<MvASSIGN NAME = "l.success" VALUE = "{ Remove_Grouped_Items( g.TGPG:Remove_Updates ) }">
 	</MvIF>
 
-	<MvCOMMENT>
-		Uncomment when complete. This is for debugging.
+		<MvCOMMENT>
+			Uncomment when complete. This is for debugging.
+		</MvCOMMENT>
 		<MvASSIGN NAME = "g.TGPG" VALUE = "">
-	</MvCOMMENT>
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
@@ -374,6 +374,7 @@
 				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.group:items, l.item, -1 ) }">
 			<MvELSE>
 				<MvASSIGN NAME = "l.temp"						VALUE = "">
+				<MvASSIGN NAME = "l.temp:quantity"				VALUE = "{ l.item:quantity }">
 				<MvASSIGN NAME = "l.temp:custom_code"			VALUE = "{ l.option:attr_code }">
 				<MvASSIGN NAME = "l.temp:custom_data"			VALUE = "{ l.option:data }">
 				<MvASSIGN NAME = "l.temp:base_price"			VALUE = "{ l.item:base_price }">
