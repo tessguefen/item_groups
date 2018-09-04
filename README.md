@@ -21,10 +21,18 @@ If you want to tie the groups together so they can be updated and removed togeth
 `TGPG_Update`: The value of this **must** be the custom attribute code that was used earlier. It will find all basket items with the same `attr_code` and `data` and update/ remove them together.
 
 
-**QTYG, RGRP:**
+**QTYG:**
 
 ```html
 <input type="hidden" name="TGPG_Update" value="My_Custom_Attribute_Code" />
+```
+
+**RGRP:**
+If you need multiple actions, make sure `TGRPG` is first to remove, if you are trying to "edit" the custom group.
+```html
+<input type="hidden" name="Action" value="TGRPG" /> OR <input type="hidden" name="Action" value="TGRPG,ADPM" />
+<input type="hidden" name="TGPG_Code" value="My_Custom_Attribute_Code" />
+<input type="hidden" name="TGPG_Value" value="My_Custom_Value" />
 ```
 
 **Grouping the items in an array**
