@@ -2,7 +2,7 @@
 	<MvASSIGN NAME = "l.module:code"		VALUE = "tg_product_groups">
 	<MvASSIGN NAME = "l.module:name"		VALUE = "Items Groups">
 	<MvASSIGN NAME = "l.module:provider"	VALUE = "Tess Guefen">
-	<MvASSIGN NAME = "l.module:version"		VALUE = "1.004">
+	<MvASSIGN NAME = "l.module:version"		VALUE = "1.005">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "9.00">
 	<MvASSIGN NAME = "l.module:description"	VALUE = "Group Products in the basket with a hidden input..and stuff.">
 	<MvASSIGN NAME = "l.module:features"	VALUE = "system">
@@ -29,7 +29,7 @@
 		</MvIF>
 	</MvIF>
 
-	<MvIF EXPR = "{ 'TGRPG' CIN l.action AND g.TGPG_Value }">
+	<MvIF EXPR = "{ ( 'TGRPG' CIN l.action ) AND ( NOT ISNULL g.TGPG_Value ) }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ Find_Removed_Grouped_Items( g.TGPG_Code, g.TGPG_Value, g.TGPG:Remove_Updates ) }">
 	</MvIF>
 
@@ -40,7 +40,6 @@
 	|
 	</MvCOMMENT>
 	<MvIF EXPR = "{ ( NOT ISNULL g.TGPG_Code ) AND ( NOT ISNULL g.TGPG_Value ) }">	
-		<MvASSIGN NAME = "g.TGPG" VALUE = "">
 
 		<MvIF EXPR = "{ 'ADPR' CIN l.action }">
 			<MvASSIGN NAME = "l.success" VALUE = "{ Determine_Same( g.Product_Code, g.Quantity, g.Attributes, g.Product_Attributes, g.TGPG_Code, g.TGPG_Value, g.TGPG:Updates, g.TGPG:New ) }">
@@ -78,11 +77,9 @@
 		<MvASSIGN NAME = "l.success" VALUE = "{ [ g.Module_Feature_PGR_RT ].Runtime_Discount_Basket( g.Basket ) }">
 	</MvIF>
 
-
-	<MvCOMMENT>
-		Uncomment when complete. This is for debugging.
-		<MvASSIGN NAME = "g.TGPG" VALUE = "">
-	</MvCOMMENT>
+	<MvCOMMENT>Uncomment when complete. This is for debugging.</MvCOMMENT>
+	<MvASSIGN NAME = "g.TGPG" VALUE = "">
+	
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
 
@@ -345,6 +342,10 @@
 		<MvFUNCTIONRETURN VALUE = "0">
 	</MvIF>
 
+	<MvIF EXPR = "{ ISNULL g.Session_ID }">
+		<MvASSIGN NAME = "g.Session_ID" VALUE = "{ [ g.Module_Library_Utilities ].DetermineSessionID() }">
+	</MvIF>
+
 	<MvIF EXPR = "{ NOT [ g.Module_Library_Utilities ].OpenBasket( l.basket ) }">
 		<MvFUNCTIONRETURN VALUE = "0">
 	</MvIF>
@@ -363,6 +364,7 @@
 
 		<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert( l.remove_updates, l.item:group_id, -1 ) }">
 	</MvFOREACH>
+
 </MvFUNCTION>
 
 <MvFUNCTION NAME = "Update_Grouped_Items" PARAMETERS = "updates var, quantity">
