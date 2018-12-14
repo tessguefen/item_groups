@@ -440,15 +440,20 @@
 				<MvASSIGN NAME = "l.group:subtotal_base_price"	VALUE = "{ l.group:subtotal_base_price + l.item:product:subtotal_base_price }">
 				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.group:items, l.item, -1 ) }">
 			<MvELSE>
-				<MvASSIGN NAME = "l.temp"						VALUE = "">
-				<MvASSIGN NAME = "l.temp:quantity"				VALUE = "{ l.item:quantity }">
-				<MvASSIGN NAME = "l.temp:custom_data"			VALUE = "{ l.option:data }">
-				<MvASSIGN NAME = "l.temp:base_price"			VALUE = "{ l.item:product:base_price }">
-				<MvASSIGN NAME = "l.temp:price"					VALUE = "{ l.item:product:price }">
-				<MvASSIGN NAME = "l.temp:subtotal"				VALUE = "{ l.item:product:subtotal }">
-				<MvASSIGN NAME = "l.temp:subtotal_base_price"	VALUE = "{ l.item:product:subtotal_base_price }">
-				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.temp:items, l.item, -1 ) }">
-				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.grouped_items, l.temp, -1 )}">
+				<MvASSIGN NAME = "l.temp"							VALUE = "">
+				<MvASSIGN NAME = "l.temp:id"						VALUE = "{ l.item:id }">
+				<MvASSIGN NAME = "l.temp:wshlst_id"					VALUE = "{ l.item:wshlst_id }">
+				<MvASSIGN NAME = "l.temp:dtadded"					VALUE = "{ l.item:dtadded }">
+				<MvASSIGN NAME = "l.temp:formatted_dtadded_time"	VALUE = "{ l.item:formatted_dtadded_time }">
+				<MvASSIGN NAME = "l.temp:formatted_dtadded_date"	VALUE = "{ l.item:formatted_dtadded_date }">
+				<MvASSIGN NAME = "l.temp:quantity"					VALUE = "{ l.item:quantity }">
+				<MvASSIGN NAME = "l.temp:custom_data"				VALUE = "{ l.option:data }">
+				<MvASSIGN NAME = "l.temp:base_price"				VALUE = "{ l.item:product:base_price }">
+				<MvASSIGN NAME = "l.temp:price"						VALUE = "{ l.item:product:price }">
+				<MvASSIGN NAME = "l.temp:subtotal"					VALUE = "{ l.item:product:subtotal }">
+				<MvASSIGN NAME = "l.temp:subtotal_base_price"		VALUE = "{ l.item:product:subtotal_base_price }">
+				<MvASSIGN NAME = "l.success" 						VALUE = "{ miva_array_insert_var( l.temp:items, l.item, -1 ) }">
+				<MvASSIGN NAME = "l.success" 						VALUE = "{ miva_array_insert_var( l.grouped_items, l.temp, -1 )}">
 			</MvIF>
 		<MvELSE>
 			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.regular_items, l.item, -1 ) }">
