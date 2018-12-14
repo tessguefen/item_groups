@@ -44,7 +44,7 @@ This will have it's own item later:
 
 **Grouping the items in an array for Wish List Pages**
 ```xml
-<mvt:do file="g.Module_Root $ '/modules/system/item_groups.mvc'" name="l.success" value="Group_Items_WishList( l.settings:basket:groups, l.settings:regular_items, l.settings:grouped_items )" />
+<mvt:do file="g.Module_Root $ '/modules/system/item_groups.mvc'" name="l.success" value="Group_Items_WishList( l.settings:wishlistitems:items, l.settings:regular_items, l.settings:grouped_items )" />
 ```
 
 !!! NOTE: Only works when a single attribute code is utilized on a site project. Use at your own risk.
