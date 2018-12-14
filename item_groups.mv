@@ -2,7 +2,7 @@
 	<MvASSIGN NAME = "l.module:code"		VALUE = "tg_product_groups">
 	<MvASSIGN NAME = "l.module:name"		VALUE = "Items Groups">
 	<MvASSIGN NAME = "l.module:provider"	VALUE = "Tess Guefen">
-	<MvASSIGN NAME = "l.module:version"		VALUE = "1.006">
+	<MvASSIGN NAME = "l.module:version"		VALUE = "1.007">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "9.00">
 	<MvASSIGN NAME = "l.module:description"	VALUE = "Group Products in the basket with a hidden input..and stuff.">
 	<MvASSIGN NAME = "l.module:features"	VALUE = "system">
