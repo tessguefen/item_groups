@@ -2,7 +2,7 @@
 	<MvASSIGN NAME = "l.module:code"		VALUE = "tg_product_groups">
 	<MvASSIGN NAME = "l.module:name"		VALUE = "Items Groups">
 	<MvASSIGN NAME = "l.module:provider"	VALUE = "Tess Guefen">
-	<MvASSIGN NAME = "l.module:version"		VALUE = "1.007">
+	<MvASSIGN NAME = "l.module:version"		VALUE = "1.008">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "9.00">
 	<MvASSIGN NAME = "l.module:description"	VALUE = "Group Products in the basket with a hidden input..and stuff.">
 	<MvASSIGN NAME = "l.module:features"	VALUE = "system">
@@ -385,10 +385,12 @@
 	<MvASSIGN NAME = "g.Basket_Group" VALUE = "{ l.previous_group }">
 </MvFUNCTION>
 
-<MvFUNCTION NAME = "Group_Items" PARAMETERS = "items var, custom_attribute, regular_items var, grouped_items var" STANDARDOUTPUTLEVEL = "">
-	<MvIF EXPR = "{ ISNULL l.custom_attribute }">
+<MvFUNCTION NAME = "Group_Items" PARAMETERS = "items var, custom_attributes_list, regular_items var, grouped_items var" STANDARDOUTPUTLEVEL = "html, text">
+	<MvIF EXPR = "{ ISNULL l.custom_attributes_list }">
 		<MvFUNCTIONRETURN VALUE = 0 />
 	</MvIF>
+
+	<MvASSIGN NAME = "l.success" VALUE = "{ miva_splitstring( l.custom_attributes_list, ',', l.custom_attributes, 'trim' ) }">
 
 	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.items">
 		<MvIF EXPR = "{ l.item:option_count EQ 0 }">
@@ -396,7 +398,8 @@
 			<MvFOREACHCONTINUE />
 		</MvIF>
 
-		<MvIF EXPR = "{ miva_array_search( l.item:options, 0, l.option, 'l.option:attr_code EQ l.custom_attribute' ) }">
+		<MvIF EXPR = "{ miva_array_search( l.item:options, 0, l.option, 'miva_array_find( l.option:attr_code, l.custom_attributes, 1 )' ) }">
+
 			<MvIF EXPR = "{ miva_array_search( l.grouped_items, 0, l.group, '( l.group:custom_code EQ l.option:attr_code ) AND ( l.group:custom_data EQ l.option:data )' ) }">
 				<MvASSIGN NAME = "l.group:base_price"			VALUE = "{ l.group:base_price + l.item:base_price }">
 				<MvASSIGN NAME = "l.group:price"				VALUE = "{ l.group:price + l.item:price }">
