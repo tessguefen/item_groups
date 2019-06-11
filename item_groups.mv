@@ -2,7 +2,7 @@
 	<MvASSIGN NAME = "l.module:code"		VALUE = "tg_product_groups">
 	<MvASSIGN NAME = "l.module:name"		VALUE = "Items Groups">
 	<MvASSIGN NAME = "l.module:provider"	VALUE = "Tess Guefen">
-	<MvASSIGN NAME = "l.module:version"		VALUE = "1.008">
+	<MvASSIGN NAME = "l.module:version"		VALUE = "1.009">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "9.00">
 	<MvASSIGN NAME = "l.module:description"	VALUE = "Group Products in the basket with a hidden input..and stuff.">
 	<MvASSIGN NAME = "l.module:features"	VALUE = "system">
@@ -393,7 +393,7 @@
 	<MvASSIGN NAME = "l.success" VALUE = "{ miva_splitstring( l.custom_attributes_list, ',', l.custom_attributes, 'trim' ) }">
 
 	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.items">
-		<MvIF EXPR = "{ l.item:option_count EQ 0 }">
+		<MvIF EXPR = "{ miva_array_elements( l.item:options ) EQ 0 }">
 			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.regular_items, l.item, -1 ) }">
 			<MvFOREACHCONTINUE />
 		</MvIF>
@@ -425,44 +425,4 @@
 		</MvIF>
 
 	</MvFOREACH>
-</MvFUNCTION>
-
-<MvFUNCTION NAME = "Group_Items_WishList" PARAMETERS = "items var, regular_items var, grouped_items var" STANDARDOUTPUTLEVEL = "">
-
-	<MvFOREACH ITERATOR = "l.item" ARRAY = "l.items">
-		<MvIF EXPR = "{ l.item:product:option_count EQ 0 }">
-			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.regular_items, l.item, -1 ) }">
-			<MvFOREACHCONTINUE />
-		</MvIF>
-
-		<MvIF EXPR = "{ miva_array_search( l.item:product:options, 0, l.option, '(l.option:attmpat_id EQ 0) AND (l.option:attr_id EQ 0) AND (l.option:option_id EQ 0)' ) }">
-			<MvIF EXPR = "{ miva_array_search( l.grouped_items, 0, l.group, '( l.group:custom_data EQ l.option:data )' ) }">
-				<MvASSIGN NAME = "l.group:base_price"			VALUE = "{ l.group:base_price + l.item:product:base_price }">
-				<MvASSIGN NAME = "l.group:price"				VALUE = "{ l.group:price + l.item:product:price }">
-				<MvASSIGN NAME = "l.group:subtotal"				VALUE = "{ l.group:subtotal + l.item:product:subtotal }">
-				<MvASSIGN NAME = "l.group:subtotal_base_price"	VALUE = "{ l.group:subtotal_base_price + l.item:product:subtotal_base_price }">
-				<MvASSIGN NAME = "l.success" 					VALUE = "{ miva_array_insert_var( l.group:items, l.item, -1 ) }">
-			<MvELSE>
-				<MvASSIGN NAME = "l.temp"							VALUE = "">
-				<MvASSIGN NAME = "l.temp:id"						VALUE = "{ l.item:id }">
-				<MvASSIGN NAME = "l.temp:wshlst_id"					VALUE = "{ l.item:wshlst_id }">
-				<MvASSIGN NAME = "l.temp:dtadded"					VALUE = "{ l.item:dtadded }">
-				<MvASSIGN NAME = "l.temp:formatted_dtadded_time"	VALUE = "{ l.item:formatted_dtadded_time }">
-				<MvASSIGN NAME = "l.temp:formatted_dtadded_date"	VALUE = "{ l.item:formatted_dtadded_date }">
-				<MvASSIGN NAME = "l.temp:quantity"					VALUE = "{ l.item:quantity }">
-				<MvASSIGN NAME = "l.temp:custom_data"				VALUE = "{ l.option:data }">
-				<MvASSIGN NAME = "l.temp:base_price"				VALUE = "{ l.item:product:base_price }">
-				<MvASSIGN NAME = "l.temp:price"						VALUE = "{ l.item:product:price }">
-				<MvASSIGN NAME = "l.temp:subtotal"					VALUE = "{ l.item:product:subtotal }">
-				<MvASSIGN NAME = "l.temp:subtotal_base_price"		VALUE = "{ l.item:product:subtotal_base_price }">
-				<MvASSIGN NAME = "l.success" 						VALUE = "{ miva_array_insert_var( l.temp:items, l.item, -1 ) }">
-				<MvASSIGN NAME = "l.success" 						VALUE = "{ miva_array_insert_var( l.grouped_items, l.temp, -1 )}">
-			</MvIF>
-		<MvELSE>
-			<MvASSIGN NAME = "l.success" VALUE = "{ miva_array_insert_var( l.regular_items, l.item, -1 ) }">
-			<MvFOREACHCONTINUE />
-		</MvIF>
-
-	</MvFOREACH>
-
 </MvFUNCTION>
