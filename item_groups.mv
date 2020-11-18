@@ -269,7 +269,8 @@
 		<MvASSIGN NAME = "l.update_me" VALUE = "">
 
 		<MvFOREACH ITERATOR = "l.basketitem" ARRAY = "l.basketitems" COUNT = "{ [ g.Module_Library_DB ].BasketItemList_Load_Basket_Product( g.Basket:basket_id, l.item:product:id, l.basketitems ) }">
-			<MvASSIGN NAME = "l.found_match" VALUE = 0 >
+			<MvASSIGN NAME = "l.found_match" VALUE = 0>
+
 
 			<MvASSIGN NAME = "l.item_option_count"		VALUE = "{ [ g.Module_Library_DB ].BasketOptionList_Load_Line( l.basketitem:line_id, l.item_options ) }">
 
