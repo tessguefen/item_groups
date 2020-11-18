@@ -101,7 +101,8 @@
 		<MvFUNCTIONRETURN VALUE = 0>
 	</MvIF>
 
-	<MvASSIGN NAME = "l.found_match" VALUE = 0 >
+	<MvASSIGN NAME = "l.found_match" VALUE = 0>
+
 
 	<MvFOREACH ITERATOR = "l.basketitem" ARRAY = "l.basketitems" COUNT = "{ [ g.Module_Library_DB ].BasketItemList_Load_Basket_Product( g.Basket:basket_id, l.product:id, l.basketitems ) }">
 		<MvIF EXPR = "{ l.basketitem:wish_id						OR
