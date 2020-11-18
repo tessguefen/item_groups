@@ -147,7 +147,8 @@
 		<MvASSIGN NAME = "l.temp:new_quantity"			VALUE = "{ l.quantity }">
 
 		<MvASSIGN NAME = "l.success"					VALUE = "{ miva_array_insert_var( l.updates, l.temp, -1 ) }">
-		<MvASSIGN NAME = "l.found_match"				VALUE = 1 >
+		<MvASSIGN NAME = "l.found_match"				VALUE = 1>
+
 	</MvFOREACH>
 
 	<MvIF EXPR = "{ l.found_match EQ 0 }">
