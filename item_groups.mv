@@ -56,7 +56,7 @@
 </MvFUNCTION>
 
 
-<MvFUNCTION NAME = "SystemModule_Screen" PARAMETERS = "module var, screen" STANDARDOUTPUTLEVEL = "html, text">
+<MvFUNCTION NAME = "SystemModule_Screen" PARAMETERS = "module var, screen" STANDARDOUTPUTLEVEL = "">
 	<MvIF EXPR = "{ g.TGPG:Remove_Updates }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ Remove_Grouped_Items( g.TGPG:Remove_Updates ) }">
 	</MvIF>
@@ -75,13 +75,10 @@
 
 	<MvIF EXPR = "{ g.TGPG:Updates OR g.TGPG:New }">
 		<MvASSIGN NAME = "l.success" VALUE = "{ [ g.Module_Feature_PGR_RT ].Runtime_Discount_Basket( g.Basket ) }">
-		<pre style="display:none;">
-			<MvEVAL EXPR = "{ l.success }">
-		</pre>
 	</MvIF>
 
 	<MvCOMMENT>Uncomment when complete. This is for debugging.</MvCOMMENT>
-	<MvCOMMENT> <MvASSIGN NAME = "g.TGPG" VALUE = ""> </MvCOMMENT>
+	<MvASSIGN NAME = "g.TGPG" VALUE = "">
 	
 	<MvFUNCTIONRETURN VALUE = 1>
 </MvFUNCTION>
