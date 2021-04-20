@@ -2,7 +2,7 @@
 	<MvASSIGN NAME = "l.module:code"		VALUE = "tg_product_groups">
 	<MvASSIGN NAME = "l.module:name"		VALUE = "Items Groups">
 	<MvASSIGN NAME = "l.module:provider"	VALUE = "Tess Guefen">
-	<MvASSIGN NAME = "l.module:version"		VALUE = "1.010">
+	<MvASSIGN NAME = "l.module:version"		VALUE = "1.011">
 	<MvASSIGN NAME = "l.module:api_ver"		VALUE = "9.00">
 	<MvASSIGN NAME = "l.module:description"	VALUE = "Group Products in the basket with a hidden input.">
 	<MvASSIGN NAME = "l.module:features"	VALUE = "system">
@@ -197,7 +197,7 @@
 			<MvASSIGN NAME = "l.basketitem:name" 		VALUE = "{ l.item:basketitem:name }">
 			<MvASSIGN NAME = "l.basketitem:retail"		VALUE = "{ l.item:basketitem:retail }">
 			<MvASSIGN NAME = "l.basketitem:base_price"	VALUE = "{ l.item:basketitem:base_price }">
-			<MvASSIGN NAME = "l.basketitem:price"		VALUE = "{ l.item:basketitem:price }">
+			<MvASSIGN NAME = "l.basketitem:price"		VALUE = "{ l.item:basketitem:base_price }">
 			<MvASSIGN NAME = "l.basketitem:weight" 		VALUE = "{ l.item:basketitem:weight }">
 			<MvASSIGN NAME = "l.basketitem:taxable" 	VALUE = "{ l.item:basketitem:taxable }">
 			<MvASSIGN NAME = "l.basketitem:upsold" 		VALUE = 0>
