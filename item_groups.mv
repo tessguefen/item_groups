@@ -211,7 +211,7 @@
 		<MvASSIGN NAME = "l.basketitem:name" 		VALUE = "{ l.item:basketitem:name }">
 		<MvASSIGN NAME = "l.basketitem:retail"		VALUE = "{ l.item:basketitem:retail }">
 		<MvASSIGN NAME = "l.basketitem:base_price"	VALUE = "{ l.item:basketitem:base_price }">
-		<MvASSIGN NAME = "l.basketitem:price"		VALUE = "{ l.item:basketitem:price }">
+		<MvASSIGN NAME = "l.basketitem:price"		VALUE = "{ l.item:basketitem:base_price }">
 		<MvASSIGN NAME = "l.basketitem:weight" 		VALUE = "{ l.item:basketitem:weight }">
 		<MvASSIGN NAME = "l.basketitem:taxable" 	VALUE = "{ l.item:basketitem:taxable }">
 		<MvASSIGN NAME = "l.basketitem:upsold" 		VALUE = 0>
